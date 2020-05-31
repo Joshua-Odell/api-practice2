@@ -2,44 +2,28 @@
 
 let breed = "";
 let result = "";
-let temp ="";
-let breedList = [];
-let indicator = 0;
 
 function pull(){
-    console.log(breedList);
     breed = $("#breed").val();
     breed = breed.toLowerCase();
-    console.log(breed);
-    indicator = breedList.includes(breed);
-    // for (let i = 0; i < breedList.length; i++){
-    //    if (breed === breedList[i]){
-    //        indicator = 1;
-    //    } 
-    // }
-
-    if (indicator === True){
-        fetch("https://dog.ceo/api/breed/" + breed + "/images/random")
+    fetch("https://dog.ceo/api/breed/" + breed + "/images/random")
         .then(response => response.json())
-        .then(responseJson => temp = responseJson.message)
-        .then(response =>
-            display());  
-    }
-    else {
-        alert("that breed is not recognized please try again")
-    }
-             
+        .then(responseJson => {
+            if (responseJson.status === 'error') {
+                throw new Error(responseJson)
+            } else {
+                display(responseJson.message)
+            }
+        }) 
+        .catch(error => displayError(error))            
 }
 
-function findBreed(){
-
-    fetch("https://dog.ceo/api/breeds/list/all")
-        .then(response => response.json())
-        .then(responseJson => breedList = responseJson.message)
-        .then(response => pull());            
+function displayError(error){
+    let breedError = "That breed name is not valid. Please Try Again."
+    $('.result').html(breedError);
 }
 
-function display() {
+function display(temp) {
     let result =  '<img src="' + temp + '">';  
     $('.result').html(result);
     
@@ -48,7 +32,7 @@ function display() {
 function button() {
     $('.enter').on("click", function(e){
         e.preventDefault();
-        findBreed();
+        pull();
     }); 
 }
 
